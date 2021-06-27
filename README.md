@@ -4,14 +4,14 @@
 
 ### Cechy ogólne i opis
 
-Kwałek kodu widniejący na tym repozytorium jest zrobiony na potrzebę zadania rekrutacyjneg i nie powinno się stosować niniejszego rozwiązania w środowisku podrukcyjnym - implementacja poszczególnych metod oraz rozwiązania tutaj zawartę mają sprawdzać wiedzę programistyczną i umiejętność radzenia sobie z problemami, sama logika jest dość "prymitywna".
+Kwałek kodu widniejący na tym repozytorium jest zrobiony na potrzebę zadania rekrutacyjneg i nie powinno się stosować niniejszego rozwiązania w środowisku podrukcyjnym - implementacja poszczególnych metod oraz rozwiązania tutaj zawarte mają sprawdzać wiedzę programistyczną i umiejętność radzenia sobie z problemami, sama logika jest dość "prymitywna".
 
 Jak prypadkowo tutaj trafiłeś, to już wiesz że to tylko 4hobby :)
 
 
 #### Szyfr zastosowany
 
-Program korzysta z prostej implementacji szyfru **RSA** - powszechnie znanego i stosowanego w celu generowania pary kluczy symetrzycznych na różnych środowiskach. Najbardziej kojarzony może być z protokołem ssh, gdzie bardzo często aby nie korzystać z logowania za pomocą swoich danych na stacjach roboczych opartych o kernele Unix'owe, stacje wymieniają się parą kluczy, które służą do uwierzytelniania danego użytkownika.
+Program korzysta z prostej implementacji szyfru **RSA** - powszechnie znanego i stosowanego w celu generowania pary kluczy asymetrzycznych na różnych środowiskach. Najbardziej kojarzony może być z protokołem ssh, gdzie bardzo często aby nie korzystać z logowania za pomocą swoich danych na stacjach roboczych opartych o kernele Unix'owe, stacje wymieniają się parą kluczy, które służą do uwierzytelniania danego użytkownika.
 
 
 ### Podział projektu
@@ -19,11 +19,11 @@ Program korzysta z prostej implementacji szyfru **RSA** - powszechnie znanego i 
 * **app** - tutaj jest cała aplikacja;
     * **/utils**  - w tym folderze znajdują się potrzebne klasy i elementy aby móc wykonać odpowiednio obliczenia dla algorytmu RSA
     * **/utils/rsa.py**  - plik z klasą Rsa()
-    * **/utils/number_utils.py** - plik wspomagający operacje matematyczne dla klasy Rsa(), jest w osobnym pliku, gdyż można by było wykorzystać implementacje tych method na innecych obiektach - stąd sklada się ze statycznych metod.
+    * **/utils/number_utils.py** - plik wspomagający operacje matematyczne dla klasy Rsa(), jest w osobnym pliku, gdyż można by było wykorzystać implementacje tych metod na innecych obiektach - dlatego składa się ze statycznych metod.
     * **/tests** - folder zawierający testy do klas znajdujących się w **/utils/**
     * **main.py** - plik z całą aplikacją FastAPI
-    * **schemas.py** - plik ze schematem
-    * **config.py** - konfiguracja aplikacji
+    * **schemas.py** - plik ze schematem do wysyłania requestów
+    * **config.py** - konfiguracja aplikacji, a bardziej konfiguracja użytkownika i hasła do BasicHTTPAuth
     * **test_main.py** - test FastAPI.Client dla endpointów
 
 ## Końcówki - Endpoints
@@ -55,7 +55,7 @@ DANE:
 >USER ="admin"
 >USER_PASSW ="admin"
 
-Przed dostaniem się do każdego endpointa należy się wcześniej przejśc BasicAuth (zwykłe uwierzytelnianie WWW - najprymitywniejsze :P). Użytkownik i hasło powinny być w formacie 
+Przed dostaniem się do każdego endpointa należy z powodzeniem wcześniej przejśc BasicAuth (zwykłe uwierzytelnianie WWW - najprymitywniejsze :P). Użytkownik i hasło powinny być w formacie 
 > "username:password" zakodowane do base64
 
 Ja do testów używałem pary ***"toni:123"*** ale można sobie ustawić użytkownika jakiego się chce w pliku config.py pod zmienną **USER** i hasło w **USER_PASSW**
@@ -170,11 +170,11 @@ Wczesniej ustawiłem limit na 255 aby pokryć całą tablicę ASCII, ale po kilk
 
 
 # Białe znaki
-Z bialymi znakami nie powieniem mieć problemów - funkcja w /**test_main.py**   --- **TestMain().test_encode_and_decode_withespaces** sprawdza takie znaki i przechodzi:
+Z bialymi znakami algorytm nie powieniem mieć problemów - funkcja w /**test_main.py**   --- **TestMain().test_encode_and_decode_withespaces** sprawdza białe znaki i przechodzi test z powodzeniem:
 > test_message: dict = {"message": '\n \t \t \v \b \r \f \a \\ \' \" '}
 
 
 
-
-
+##TL:DR
+Jeżeli nie chce Ci się tego czytac, to openApi wszystko Ci powie! Do tego pliki mają komentarze w miejscach mniej zrozumiałych. Miłego korzystania :)
 
