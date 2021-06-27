@@ -175,6 +175,6 @@ Z bialymi znakami algorytm nie powieniem mieć problemów - funkcja w /**test_ma
 
 
 
-##TL:DR
+# TL:DR
 Jeżeli nie chce Ci się tego czytac, to openApi wszystko Ci powie! Do tego pliki mają komentarze w miejscach mniej zrozumiałych. Miłego korzystania :)
 
