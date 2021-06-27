@@ -6,14 +6,15 @@ import secrets
 
 from utils.rsa import Rsa
 from schemas import Message
+import config
 
 app = FastAPI()
 security = HTTPBasic()
 
 
 def get_authenticated(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "toni")
-    correct_password = secrets.compare_digest(credentials.password, "123")
+    correct_username = secrets.compare_digest(credentials.username,  config.USER)
+    correct_password = secrets.compare_digest(credentials.password, config.USER_PASSW)
     if not (correct_password and correct_username):
         return HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,7 +53,7 @@ async def read_form(message: str = Form(...), state: str = Depends(get_authentic
     decrypted = rsa.decrypt_RSA(encrypted, rsa.public_key)
     username = state.headers['username']
 
-    info = "message: {} | {} | {} | {}".format(message, encrypted, username, decrypted)
+    info = "message: {} | encrypted: {} | username: {} | pub_key {}".format(message, encrypted, username, rsa.public_key)
 
     content = '<form method="post"><p>Enter text to encrypt  </p> <input type="textarea" name="message" ' \
               'required/><input type="submit"/></form> <br> {}'.format(info)

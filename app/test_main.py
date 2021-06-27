@@ -8,8 +8,9 @@ client = TestClient(app)
 
 endpoints = ['/', '/api/encode/', '/api/decode/']
 
-real_user = b"toni:123"
-user_encoded_to_b64 = base64.b64encode(real_user).decode("utf-8")
+
+real_user = config.USER+":"+config.USER_PASSW
+user_encoded_to_b64 = base64.b64encode(real_user.encode()).decode('utf-8')
 
 fake_user = b"somefakeuser:1223"
 fake_user_encoded_to_b64 = base64.b64encode(fake_user)
@@ -76,6 +77,26 @@ class TestMain:
         data_decrypted = response.json()
         assert response.status_code == 200 and data_decrypted['message'] == test_message['message']
 
+
+    def test_encode_and_decode_withespaces(self):
+
+        test_message: dict = {"message": '\n \t \t \v \b \r \f \a \\ \' \" '}
+
+        response = client.post(endpoints[1], headers={"WWW-authenticate": "Basic",
+                                                      "Authorization": "Basic {}".format(user_encoded_to_b64)},
+                               json=test_message)
+
+        data = response.json()
+
+        assert response.status_code == 200
+
+        response = client.post(endpoints[2], headers={"WWW-authenticate": "Basic",
+                                                      "Authorization": "Basic {}".format(user_encoded_to_b64)},
+                               json={"message": data['message'], "public_key": data['public_key']})
+
+        data_decrypted = response.json()
+
+        assert response.status_code == 200 and data_decrypted['message'] == test_message['message']
 
     def test_encode_and_decode_without_message(self):
 

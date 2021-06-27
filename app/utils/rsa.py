@@ -90,7 +90,7 @@ class Rsa():
         return public_key, private_key
 
     
-    ''' Here uses algebra for encrypt the message with the int representation of characters in ascii table '''
+    ''' Here uses algebra for encrypt the message with the Unicode representation of characters in ascii table '''
     # c = (letters to int) ^ e % n
 
     def encrypt_RSA(self, message: str, public_key: int) -> str:
