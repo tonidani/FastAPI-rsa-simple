@@ -1,4 +1,5 @@
-from rsa import Rsa
+from ..utils.rsa import Rsa
+
 import pytest
 
 class TestRsa:

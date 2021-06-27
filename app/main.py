@@ -1,11 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Form
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
-from schemas import Message
 
 import secrets
-from rsa import Rsa
 
+from utils.rsa import Rsa
+from schemas import Message
 
 app = FastAPI()
 security = HTTPBasic()
@@ -21,60 +21,102 @@ def get_authenticated(credentials: HTTPBasicCredentials = Depends(security)):
             headers={"WWW-authenticate": "Basic"},
         )
 
-    return credentials.username
+    return HTTPException(
+        status_code=status.HTTP_200_OK,
+        detail="You are authenticated",
+        headers={"WWW-authenticate": "Basic",
+                 "username": credentials.username},
+
+    )
 
 
 @app.get("/")
-def read_root(username: str = Depends(get_authenticated)) -> str:
-    if username.status_code == 401:
-        content = 'You are unauthorized to use this endpoint!'
+def read_root(state: str = Depends(get_authenticated)) -> str:
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
         return HTMLResponse(content=content, status_code=401)
-    content = '<form method="post"><p> Podaj text aby zaszyfrować </p> <input type="textarea" name="message"/><input type="submit"/></form>'
+
+    content = '<form method="post"><p> Enter text to encrypt </p> <input type="textarea" name="message"/><input ' \
+              'type="submit"/></form> '
     return HTMLResponse(content=content, status_code=200)
 
-@app.post("/")
-def read_form(message: str = Form(...), username: str = Depends(get_authenticated)):
 
-    if username.status_code == 401:
-        content = 'You are unauthorized to use this endpoint!'
+@app.post("/")
+def read_form(message: str = Form(...), state: str = Depends(get_authenticated)):
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
         return HTMLResponse(content=content, status_code=401)
 
     rsa = Rsa()
     encrypted = rsa.encrypt_RSA(message, rsa.private_key)
     decrypted = rsa.decrypt_RSA(encrypted, rsa.public_key)
-    username = username
+    username = state.headers['username']
 
     info = "message: {} | {} | {} | {}".format(message, encrypted, username, decrypted)
 
-    content = '<form method="post"><p> Podaj text aby zaszyfrować </p> <input type="textarea" name="message" required/><input type="submit"/></form> <br> {}'.format(info)
+    content = '<form method="post"><p>Enter text to encrypt  </p> <input type="textarea" name="message" ' \
+              'required/><input type="submit"/></form> <br> {}'.format(info)
 
-    return HTMLResponse(content=content, status_code=200)
+    return HTMLResponse(status_code=200, content=content)
+
 
 @app.post("/api/encode/")
-def endcode(message: Message, username: str = Depends(get_authenticated)):
+async def encode(message: Message, state: str = Depends(get_authenticated)):
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
+        raise HTTPException(status_code=401, detail=content)
 
-    if username.status_code == 401:
-        content = 'You are unauthorized to use this endpoint!'
-        return {content : username.status_code}
+    if message.message == "":
+        content = 'No message given, impossible to encode'
+        raise HTTPException(status_code=422, detail=content)
 
-    encrypted = Rsa().encrypt_RSA(message.message, Rsa().private_key)
+    rsa = Rsa()
+    encrypted = rsa.encrypt_RSA(message.message, rsa.private_key)
 
-    message.username = username
+    message.username = state.headers["username"]
     message.message = encrypted
-    message.public_key = Rsa().public_key
-    message.private_key = Rsa().private_key
+    message.public_key = rsa.public_key
+    message.private_key = rsa.private_key
 
     return message
 
 
+@app.get("/api/encode/")
+def read_root(state: str = Depends(get_authenticated)) -> str:
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
+        raise HTTPException(status_code=401, detail=content)
+
+    return 'Send your text in this format {"message" : "textoencrypt"} '
+
+
 @app.post("/api/decode/")
-def decode(message: Message, username: str = Depends(get_authenticated)):
-    if username.status_code == 401:
-        content = 'You are unauthorized to use this endpoint!'
+async def decode(message: Message, state: str = Depends(get_authenticated)):
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
+        raise HTTPException(status_code=401, detail=content)
+
+    if message.message == "":
+        content = 'No message given, impossible to decode'
+        raise HTTPException(status_code=422, detail=content)
 
     if not message.public_key:
-        return 'No public_key given, impossible to decode'
+        content = 'No public_key given, impossible to decode'
+        raise HTTPException(status_code=422, detail=content)
 
     decrypted = Rsa().decrypt_RSA(message.message, message.public_key)
-    return decrypted
 
+    message.username = state.headers["username"]
+    message.message = decrypted
+
+    return message
+
+
+@app.get("/api/decode/")
+def read_root(state: str = Depends(get_authenticated)) -> str:
+    if state.status_code == 401:
+        content = 'You are not authorized to use this endpoint!'
+        raise HTTPException(status_code=401, detail=content)
+
+    return 'Send your text and public_key in this format {"message" : "textoencrypt", "private_key" : { "key": int, ' \
+           '"n": int} } '

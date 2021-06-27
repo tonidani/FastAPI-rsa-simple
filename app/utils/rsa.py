@@ -1,8 +1,7 @@
 #RSA Encryption using python
 import random
 from typing import Tuple
-from number_utils import NumberUtils
-
+from .number_utils import NumberUtils
 
 class Rsa():
 
@@ -51,7 +50,7 @@ class Rsa():
         return self._private_key
 
     
-    '''This function allows me to choose two numbers p and q such that they cover 
+    '''This function allows choose two numbers p and q such that they cover 
     the entire ascii table and are not equals - this could cause problems in the algorithm'''
 
 
@@ -67,7 +66,7 @@ class Rsa():
 
         return p, q    
 
-    ''' Here I choose a exponent: the rule is 1 < e < phi | and e should not be a factor of phi '''
+    ''' This function chooses a exponent: the rule is 1 < e < phi | and e should not be a factor of phi '''
 
     def __get_exponent(self, phi: int) -> int:
         
@@ -77,7 +76,7 @@ class Rsa():
                     e=i
                     return e
  
-    ''' Here I generate Dicts with key pairs of public and priv keys '''
+    ''' This function generates Dicts with key pairs of public and priv keys '''
     
     def __generate_key_pairs(self, e: int, n: int, phi: int) -> Tuple[dict, dict]:
 
@@ -91,21 +90,25 @@ class Rsa():
         return public_key, private_key
 
     
-    ''' Here I user the algebra for encrypt the message with the ascii table '''
+    ''' Here uses algebra for encrypt the message with the int representation of characters in ascii table '''
+    # c = (letters to int) ^ e % n
 
     def encrypt_RSA(self, message: str, public_key: int) -> str:
 
         message = [ord(i) for i in message]
-        encryptedMessage = ''.join([chr(i ** public_key["key"] % public_key["n"]) for i in message]) # c = (letters to int) ^ e % n
+        encryptedMessage = ''.join([chr(i ** public_key["key"] % public_key["n"]) for i in message])
 
         return encryptedMessage
 
     ''' Same as above, but in reverse '''
+    # c ^ e % n
 
     def decrypt_RSA(self, encryptedMessage: str, private_key: int) -> str:
 
         encryptedMessage = [ord(i) for i in encryptedMessage]
-        decryptedMessage =''.join([chr(i ** private_key["key"] % private_key["n"] ) for i in encryptedMessage]) # c ^ e % n
+        decryptedMessage =''.join([chr(i ** private_key["key"] % private_key["n"] ) for i in encryptedMessage])
 
         return decryptedMessage
  
+if __name__ == "__main__":
+    rsa = Rsa()

@@ -1,4 +1,4 @@
-from number_utils import NumberUtils
+from ..utils.number_utils import NumberUtils
 
 class TestNumberUtils:
     def test_is_prime(self):
@@ -11,7 +11,7 @@ class TestNumberUtils:
 
     def test_check_all_ascii_codes(self):
         assert NumberUtils.check_all_ascii_codes(2, 5)
-        assert not NumberUtils.check_all_ascii_codes(2, 200)
+        assert not NumberUtils.check_all_ascii_codes(2, 1000)
 
     def test_check_if_not_factor_euclid(self):
         assert NumberUtils.check_if_not_factor_euclid(2, 5)
