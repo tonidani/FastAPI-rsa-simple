@@ -31,7 +31,7 @@ def get_authenticated(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 @app.get("/")
-def read_root(state: str = Depends(get_authenticated)) -> str:
+async def read_root(state: str = Depends(get_authenticated)) -> str:
     if state.status_code == 401:
         content = 'You are not authorized to use this endpoint!'
         return HTMLResponse(content=content, status_code=401)
@@ -42,7 +42,7 @@ def read_root(state: str = Depends(get_authenticated)) -> str:
 
 
 @app.post("/")
-def read_form(message: str = Form(...), state: str = Depends(get_authenticated)):
+async def read_form(message: str = Form(...), state: str = Depends(get_authenticated)):
     if state.status_code == 401:
         content = 'You are not authorized to use this endpoint!'
         return HTMLResponse(content=content, status_code=401)
@@ -82,7 +82,7 @@ async def encode(message: Message, state: str = Depends(get_authenticated)):
 
 
 @app.get("/api/encode/")
-def read_root(state: str = Depends(get_authenticated)) -> str:
+async def read_root(state: str = Depends(get_authenticated)) -> str:
     if state.status_code == 401:
         content = 'You are not authorized to use this endpoint!'
         raise HTTPException(status_code=401, detail=content)
@@ -113,7 +113,7 @@ async def decode(message: Message, state: str = Depends(get_authenticated)):
 
 
 @app.get("/api/decode/")
-def read_root(state: str = Depends(get_authenticated)) -> str:
+async def read_root(state: str = Depends(get_authenticated)) -> str:
     if state.status_code == 401:
         content = 'You are not authorized to use this endpoint!'
         raise HTTPException(status_code=401, detail=content)
